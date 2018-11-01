@@ -5,7 +5,6 @@ from local_config import Config
 
 
 app = Flask(__name__)
-app.amount_limits = Config.AMOUNT_LIMITS_CONFIG
 
 result = {
     'amounts': [],
@@ -16,26 +15,29 @@ result = {
 @app.route('/request/<int:amount>', methods=['GET'])
 def check_amount(amount):
     write_date = result.get('write_date')
-    limits = app.amount_limits
+    limits = Config.AMOUNT_LIMITS_CONFIG
     if write_date:
-        time_difference = (datetime.now() - result.get('write_date')).total_seconds()
+        time_difference = \
+            (datetime.now() - write_date).total_seconds()
         for key in limits.keys():
             if key >= time_difference:
                 time_limit = key
                 break
     else:
-        time_limit = min(app.amount_limits, key=app.amount_limits.get)
+        time_limit = min(limits, key=limits.get)
     amounts = result.get('amounts')
-    if sum(amounts) < limits.get(time_limit) and amount < limits.get(time_limit):
+    if sum(amounts) < limits.get(time_limit) \
+            and amount < limits.get(time_limit):
         amounts.append(amount)
         result.update(amounts=amounts)
         if not write_date:
             result.update(write_date=datetime.now())
         return jsonify({'result': "OK"})
     else:
-        return jsonify(
-            {'error': f"Amount limit exceeded {limits.get(time_limit)}/{time_limit}"}
-        )
+        return jsonify({
+            'error': f"Amount limit exceeded "
+                     f"{limits.get(time_limit)}/{time_limit}"
+        })
 
 
 if __name__ == '__main__':
