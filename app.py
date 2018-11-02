@@ -31,9 +31,7 @@ def check_amount(amount):
     if sum(amounts) < limits.get(time_limit) \
             and amount < limits.get(time_limit):
         amounts.append(amount)
-        result.update(amounts=amounts)
-        if not write_date:
-            result.update(write_date=datetime.now())
+        result.update(amounts=amounts, write_date=datetime.now())
         return jsonify({'result': "OK"})
     else:
         return jsonify({
