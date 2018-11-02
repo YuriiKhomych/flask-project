@@ -23,6 +23,8 @@ def check_amount(amount):
             if key >= time_difference:
                 time_limit = key
                 break
+        else:
+            time_limit = max(limits, key=limits.get)
     else:
         time_limit = min(limits, key=limits.get)
     amounts = result.get('amounts')
